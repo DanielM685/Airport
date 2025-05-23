@@ -4,14 +4,11 @@
  */
 package airport.controller;
 
-
-
 /**
  *
  * @author user
  */
-public class AirportController {
-    
+public class PassengerController {
     
     
     

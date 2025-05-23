@@ -7,6 +7,7 @@ package airport;
 import java.time.LocalDate;
 import java.time.Period;
 import java.util.ArrayList;
+import java.util.List;
 
 /**
  *
@@ -109,5 +110,10 @@ public class Passenger {
     public int getNumFlights() {
         return flights.size();
     }
+
+    public void setFlights(ArrayList<Flight> flights) {
+        this.flights = flights;
+    }
+    
     
 }
