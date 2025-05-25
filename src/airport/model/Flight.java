@@ -58,6 +58,12 @@ public class Flight {
     public void addPassenger(Passenger passenger) {
         this.passengers.add(passenger);
     }
+
+    public ArrayList<Passenger> getPassengers() {
+        return passengers;
+    }
+    
+    
     
     public String getId() {
         return id;

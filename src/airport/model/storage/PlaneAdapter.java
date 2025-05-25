@@ -4,10 +4,29 @@
  */
 package airport.model.storage;
 
+import airport.Flight;
+import airport.Plane;
+import org.json.JSONArray;
+import org.json.JSONObject;
+import java.util.ArrayList;
+
 /**
  *
  * @author user
  */
-public class PlaneAdapter {
+public class PlaneAdapter implements JsonAdapter<Plane> {
+    
+    
+
+    @Override
+    public Plane fromJson(JSONObject obj) {
+        return new Plane(
+            obj.getString("id"),
+            obj.getString("brand"),
+            obj.getString("model"),
+            obj.getInt("maxCapacity"),
+            obj.getString("airline")
+        );
+    }
     
 }

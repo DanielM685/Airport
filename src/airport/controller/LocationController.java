@@ -4,28 +4,25 @@
  */
 package airport.controller;
 
-import airport.Flight;
 import airport.Location;
-import airport.Passenger;
-import airport.Plane;
-import airport.model.service.LookupService;
-import airport.model.storage.FlightAdapter;
 import airport.model.storage.JsonRepository;
 import airport.model.storage.LocationAdapter;
-import airport.model.storage.PassengerAdapter;
-import airport.model.storage.PlaneAdapter;
-import java.util.ArrayList;
 import java.util.List;
 
 /**
  *
  * @author user
  */
-public class AirportController {
+public class LocationController {
 
-    
-    
+    private final JsonRepository<Location> locationRepo;
 
-    
+    public LocationController() {
+        this.locationRepo = new JsonRepository<>("json/locations.json", new LocationAdapter());
+    }
+
+    public List<Location> getAllLocations() {
+        return locationRepo.getAll();
+    }
 
 }

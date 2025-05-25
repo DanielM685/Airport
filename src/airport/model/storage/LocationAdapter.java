@@ -4,10 +4,27 @@
  */
 package airport.model.storage;
 
+import airport.Location;
+import org.json.JSONObject;
+
 /**
  *
  * @author user
  */
-public class LocationAdapter {
+public class LocationAdapter implements JsonAdapter<Location>{
+    
+    
+
+    @Override
+    public Location fromJson(JSONObject obj) {
+        return new Location(
+            obj.getString("airportId"),
+            obj.getString("airportName"),
+            obj.getString("airportCity"),
+            obj.getString("airportCountry"),
+            obj.getDouble("airportLatitude"),
+            obj.getDouble("airportLongitude")
+        );
+    }
     
 }

@@ -11,6 +11,6 @@ import org.json.JSONObject;
  * @author user
  */
 public interface JsonAdapter<T> {
-    JSONObject toJson(T obj);
+    
     T fromJson(JSONObject jsonObject);
 }
