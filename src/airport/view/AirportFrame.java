@@ -61,6 +61,38 @@ public class AirportFrame extends javax.swing.JFrame {
         this.generateHours();
         this.generateMinutes();
         this.blockPanels();
+
+        loadUserSelect();
+        loadFlightToAdd();
+        loadLocationComboBoxes();
+        loadFlightPlanes();
+    }
+
+    private void loadUserSelect() {
+        for (Passenger p : this.passengers) {
+            userSelect.addItem(String.valueOf(p.getId()));
+        }
+    }
+
+    private void loadFlightToAdd() {
+        for (Flight f : this.flights) {
+            flightToAdd.addItem(f.getId());
+        }
+    }
+
+    private void loadLocationComboBoxes() {
+        for (Location loc : this.locations) {
+            String id = loc.getAirportId();
+            flightDepartureLocation.addItem(id);
+            flightArrivalLocation.addItem(id);
+            flightScaleLocation.addItem(id);
+        }
+    }
+
+    private void loadFlightPlanes() {
+        for (Plane p : this.planes) {
+            flightPlane.addItem(p.getId());
+        }
     }
 
     private void blockPanels() {
@@ -964,6 +996,11 @@ public class AirportFrame extends javax.swing.JFrame {
 
         flightToAdd.setFont(new java.awt.Font("Yu Gothic UI", 0, 18)); // NOI18N
         flightToAdd.setModel(new javax.swing.DefaultComboBoxModel<>(new String[] { "Flight" }));
+        flightToAdd.addActionListener(new java.awt.event.ActionListener() {
+            public void actionPerformed(java.awt.event.ActionEvent evt) {
+                flightToAddActionPerformed(evt);
+            }
+        });
 
         addToFlightButton.setFont(new java.awt.Font("Yu Gothic UI", 0, 18)); // NOI18N
         addToFlightButton.setText("Add");
@@ -1799,6 +1836,10 @@ public class AirportFrame extends javax.swing.JFrame {
     private void addToFlightIDActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_addToFlightIDActionPerformed
         // TODO add your handling code here:
     }//GEN-LAST:event_addToFlightIDActionPerformed
+
+    private void flightToAddActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_flightToAddActionPerformed
+        // TODO add your handling code here:
+    }//GEN-LAST:event_flightToAddActionPerformed
 
 
     // Variables declaration - do not modify//GEN-BEGIN:variables
