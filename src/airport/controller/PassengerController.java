@@ -81,4 +81,68 @@ public class PassengerController {
         }
     }
 
+    public Response createPassenger(String id, String firstname, String lastname, String year, String month, String day, String code, String phone, String country, List<Passenger> currentPassengers) {
+        try {
+            long idLong;
+            int phoneCode;
+            long phoneNumber;
+            LocalDate birthDate;
+
+            // ID
+            try {
+                idLong = Long.parseLong(id);
+                if (idLong < 0 || String.valueOf(idLong).length() > 15) {
+                    return new Response("ID must be positive and at most 15 digits.", Status.BAD_REQUEST);
+                }
+            } catch (NumberFormatException e) {
+                return new Response("ID must be numeric.", Status.BAD_REQUEST);
+            }
+
+            // Campos vacíos
+            if (firstname.isEmpty() || lastname.isEmpty() || year.isEmpty() || month.isEmpty() || day.isEmpty() || code.isEmpty() || phone.isEmpty() || country.isEmpty()) {
+                return new Response("All fields must be filled.", Status.BAD_REQUEST);
+            }
+
+            // Fecha
+            try {
+                birthDate = LocalDate.of(Integer.parseInt(year), Integer.parseInt(month), Integer.parseInt(day));
+            } catch (Exception e) {
+                return new Response("Invalid birth date.", Status.BAD_REQUEST);
+            }
+
+            // Phone code
+            try {
+                phoneCode = Integer.parseInt(code);
+                if (phoneCode < 0 || String.valueOf(phoneCode).length() > 3) {
+                    return new Response("Phone code must be 1–3 digits and positive.", Status.BAD_REQUEST);
+                }
+            } catch (NumberFormatException e) {
+                return new Response("Phone code must be numeric.", Status.BAD_REQUEST);
+            }
+
+            // Phone number
+            try {
+                phoneNumber = Long.parseLong(phone);
+                if (phoneNumber < 0 || String.valueOf(phoneNumber).length() > 11) {
+                    return new Response("Phone number must be at most 11 digits and positive.", Status.BAD_REQUEST);
+                }
+            } catch (NumberFormatException e) {
+                return new Response("Phone number must be numeric.", Status.BAD_REQUEST);
+            }
+
+            // ID único
+            for (Passenger p : currentPassengers) {
+                if (p.getId() == idLong) {
+                    return new Response("A passenger with this ID already exists.", Status.BAD_REQUEST);
+                }
+            }
+
+            // Aquí NO se añade el pasajero (eso lo hará el Frame si todo va bien)
+            return new Response("Passenger created successfully.", Status.CREATED);
+
+        } catch (Exception e) {
+            return new Response("Internal error: " + e.getMessage(), Status.INTERNAL_SERVER_ERROR);
+        }
+    }
+
 }

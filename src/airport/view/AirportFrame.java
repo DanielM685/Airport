@@ -9,11 +9,13 @@ import airport.controller.FlightController;
 import airport.controller.LocationController;
 import airport.controller.PassengerController;
 import airport.controller.PlaneController;
+import airport.controller.utils.Response;
 import com.formdev.flatlaf.FlatDarkLaf;
 import java.awt.Color;
 import java.time.LocalDate;
 import java.time.LocalDateTime;
 import java.util.ArrayList;
+import javax.swing.JOptionPane;
 import javax.swing.UIManager;
 import javax.swing.table.DefaultTableModel;
 
@@ -40,16 +42,16 @@ public class AirportFrame extends javax.swing.JFrame {
     public AirportFrame() {
         airportController = new AirportController();
         initComponents();
-        
+
         planeController = new PlaneController();
         locationController = new LocationController();
-        
+
         this.planes = new ArrayList<>(planeController.getAllPlanes());
         this.locations = new ArrayList<>(locationController.getAllLocations());
-        
+
         passengerController = new PassengerController(this.planes, this.locations);
         flightController = new FlightController(this.planes, this.locations);
-        
+
         this.passengers = new ArrayList<>(passengerController.getAllPassengers());
         this.flights = new ArrayList<>(flightController.getAllFlights());
 
@@ -1454,100 +1456,190 @@ public class AirportFrame extends javax.swing.JFrame {
     }//GEN-LAST:event_userActionPerformed
 
     private void registerButtonActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_registerButtonActionPerformed
-        // TODO add your handling code here:
-        long id = Long.parseLong(passengerID.getText());
+        String id = passengerID.getText();
         String firstname = passengerFName.getText();
         String lastname = passengerLName.getText();
-        int year = Integer.parseInt(passengerYear.getText());
-        int month = Integer.parseInt(passengerMonth.getItemAt(passengerMonth.getSelectedIndex()));
-        int day = Integer.parseInt(passengerDay.getItemAt(passengerDay.getSelectedIndex()));
-        int phoneCode = Integer.parseInt(countryCode.getText());
-        long phone = Long.parseLong(phoneNumer.getText());
+        String year = passengerYear.getText();
+        String month = passengerMonth.getItemAt(passengerMonth.getSelectedIndex());
+        String day = passengerDay.getItemAt(passengerDay.getSelectedIndex());
+        String code = countryCode.getText();
+        String phone = phoneNumer.getText();
         String country = passengerCountry.getText();
 
-        LocalDate birthDate = LocalDate.of(year, month, day);
+        Response response = passengerController.createPassenger(id, firstname, lastname, year, month, day, code, phone, country, this.passengers);
 
-        this.passengers.add(new Passenger(id, firstname, lastname, birthDate, phoneCode, phone, country));
-        this.userSelect.addItem("" + id);
+        if (response.getStatus() >= 500) {
+            JOptionPane.showMessageDialog(null, response.getMessage(), "Error " + response.getStatus(), JOptionPane.ERROR_MESSAGE);
+        } else if (response.getStatus() >= 400) {
+            JOptionPane.showMessageDialog(null, response.getMessage(), "Error " + response.getStatus(), JOptionPane.WARNING_MESSAGE);
+        } else {
+            LocalDate birthDate = LocalDate.of(Integer.parseInt(year), Integer.parseInt(month), Integer.parseInt(day));
+            long idLong = Long.parseLong(id);
+            int phoneCode = Integer.parseInt(code);
+            long phoneNumber = Long.parseLong(phone);
+            Passenger passenger = new Passenger(idLong, firstname, lastname, birthDate, phoneCode, phoneNumber, country);
+
+            this.passengers.add(passenger);
+            this.userSelect.addItem(String.valueOf(idLong));
+
+            JOptionPane.showMessageDialog(null, response.getMessage(), "Response Message", JOptionPane.INFORMATION_MESSAGE);
+
+            // Limpiar campos
+            passengerID.setText("");
+            passengerFName.setText("");
+            passengerLName.setText("");
+            passengerYear.setText("");
+            countryCode.setText("");
+            phoneNumer.setText("");
+            passengerCountry.setText("");
+        }
     }//GEN-LAST:event_registerButtonActionPerformed
 
     private void createAirplaneActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_createAirplaneActionPerformed
-        // TODO add your handling code here:
         String id = airplaneID.getText();
         String brand = airplaneBrand.getText();
         String model = airplaneModel.getText();
-        int maxCapacity = Integer.parseInt(airplaneMaxCapacity.getText());
+        String capacity = airplaneMaxCapacity.getText();
         String airline = airplaneAirline.getText();
 
-        this.planes.add(new Plane(id, brand, model, maxCapacity, airline));
+        Response response = planeController.createPlane(id, brand, model, capacity, airline, this.planes);
 
-        this.flightPlane.addItem(id);
+        if (response.getStatus() >= 500) {
+            JOptionPane.showMessageDialog(null, response.getMessage(), "Error " + response.getStatus(), JOptionPane.ERROR_MESSAGE);
+        } else if (response.getStatus() >= 400) {
+            JOptionPane.showMessageDialog(null, response.getMessage(), "Error " + response.getStatus(), JOptionPane.WARNING_MESSAGE);
+        } else {
+            // Solo aquí se crea y se añade el avión
+            int maxCapacity = Integer.parseInt(capacity);
+            Plane plane = new Plane(id, brand, model, maxCapacity, airline);
+            this.planes.add(plane);
+
+            this.flightPlane.addItem(id);
+
+            JOptionPane.showMessageDialog(null, response.getMessage(), "Response Message", JOptionPane.INFORMATION_MESSAGE);
+
+            // Limpiar campos
+            airplaneID.setText("");
+            airplaneBrand.setText("");
+            airplaneModel.setText("");
+            airplaneMaxCapacity.setText("");
+            airplaneAirline.setText("");
+        }
     }//GEN-LAST:event_createAirplaneActionPerformed
 
     private void createLocationActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_createLocationActionPerformed
-        // TODO add your handling code here:
         String id = airportID.getText();
         String name = airportName.getText();
         String city = airportCity.getText();
         String country = airportCountry.getText();
-        double latitude = Double.parseDouble(airportLatitude.getText());
-        double longitude = Double.parseDouble(airportLongitude.getText());
+        String lat = airportLatitude.getText();
+        String lon = airportLongitude.getText();
 
-        this.locations.add(new Location(id, name, city, country, latitude, longitude));
+        Response response = locationController.createLocation(id, name, city, country, lat, lon, this.locations);
 
-        this.flightDepartureLocation.addItem(id);
-        this.flightArrivalLocation.addItem(id);
-        this.flightScaleLocation.addItem(id);
+        if (response.getStatus() >= 500) {
+            JOptionPane.showMessageDialog(null, response.getMessage(), "Error " + response.getStatus(), JOptionPane.ERROR_MESSAGE);
+        } else if (response.getStatus() >= 400) {
+            JOptionPane.showMessageDialog(null, response.getMessage(), "Error " + response.getStatus(), JOptionPane.WARNING_MESSAGE);
+        } else {
+            double latitude = Double.parseDouble(lat);
+            double longitude = Double.parseDouble(lon);
+            Location location = new Location(id, name, city, country, latitude, longitude);
+
+            this.locations.add(location);
+
+            this.flightDepartureLocation.addItem(id);
+            this.flightArrivalLocation.addItem(id);
+            this.flightScaleLocation.addItem(id);
+
+            JOptionPane.showMessageDialog(null, response.getMessage(), "Response Message", JOptionPane.INFORMATION_MESSAGE);
+
+            // Limpiar campos
+            airportID.setText("");
+            airportName.setText("");
+            airportCity.setText("");
+            airportCountry.setText("");
+            airportLatitude.setText("");
+            airportLongitude.setText("");
+        }
     }//GEN-LAST:event_createLocationActionPerformed
 
     private void createFlightActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_createFlightActionPerformed
-        // TODO add your handling code here:
         String id = flightID.getText();
         String planeId = flightPlane.getItemAt(flightPlane.getSelectedIndex());
         String departureLocationId = flightDepartureLocation.getItemAt(flightDepartureLocation.getSelectedIndex());
         String arrivalLocationId = flightArrivalLocation.getItemAt(flightArrivalLocation.getSelectedIndex());
         String scaleLocationId = flightScaleLocation.getItemAt(flightScaleLocation.getSelectedIndex());
-        int year = Integer.parseInt(flightDepartureYear.getText());
-        int month = Integer.parseInt(flightDepartureMonth.getItemAt(flightDepartureMonth.getSelectedIndex()));
-        int day = Integer.parseInt(flightDepartureDay.getItemAt(flightDepartureDay.getSelectedIndex()));
-        int hour = Integer.parseInt(flightDepartureHour.getItemAt(flightDepartureHour.getSelectedIndex()));
-        int minutes = Integer.parseInt(flightDepartureMinute.getItemAt(flightDepartureMinute.getSelectedIndex()));
-        int hoursDurationsArrival = Integer.parseInt(flightArrivalHour.getItemAt(flightArrivalHour.getSelectedIndex()));
-        int minutesDurationsArrival = Integer.parseInt(flightArrivalMinute.getItemAt(flightArrivalMinute.getSelectedIndex()));
-        int hoursDurationsScale = Integer.parseInt(flightScaleHour.getItemAt(flightScaleHour.getSelectedIndex()));
-        int minutesDurationsScale = Integer.parseInt(flightScaleMinute.getItemAt(flightScaleMinute.getSelectedIndex()));
 
-        LocalDateTime departureDate = LocalDateTime.of(year, month, day, hour, minutes);
+        String year = flightDepartureYear.getText();
+        String month = flightDepartureMonth.getItemAt(flightDepartureMonth.getSelectedIndex());
+        String day = flightDepartureDay.getItemAt(flightDepartureDay.getSelectedIndex());
+        String hour = flightDepartureHour.getItemAt(flightDepartureHour.getSelectedIndex());
+        String minutes = flightDepartureMinute.getItemAt(flightDepartureMinute.getSelectedIndex());
 
-        Plane plane = null;
-        for (Plane p : this.planes) {
-            if (planeId.equals(p.getId())) {
-                plane = p;
-            }
-        }
+        String hA = flightArrivalHour.getItemAt(flightArrivalHour.getSelectedIndex());
+        String mA = flightArrivalMinute.getItemAt(flightArrivalMinute.getSelectedIndex());
+        String hS = flightScaleHour.getItemAt(flightScaleHour.getSelectedIndex());
+        String mS = flightScaleMinute.getItemAt(flightScaleMinute.getSelectedIndex());
 
-        Location departure = null;
-        Location arrival = null;
-        Location scale = null;
-        for (Location location : this.locations) {
-            if (departureLocationId.equals(location.getAirportId())) {
-                departure = location;
-            }
-            if (arrivalLocationId.equals(location.getAirportId())) {
-                arrival = location;
-            }
-            if (scaleLocationId.equals(location.getAirportId())) {
-                scale = location;
-            }
-        }
+        Response response = flightController.createFlight(id, planeId, departureLocationId, arrivalLocationId, scaleLocationId,
+                year, month, day, hour, minutes, hA, mA, hS, mS, this.flights, this.planes, this.locations);
 
-        if (scale == null) {
-            this.flights.add(new Flight(id, plane, departure, arrival, departureDate, hoursDurationsArrival, minutesDurationsArrival));
+        if (response.getStatus() >= 500) {
+            JOptionPane.showMessageDialog(null, response.getMessage(), "Error " + response.getStatus(), JOptionPane.ERROR_MESSAGE);
+        } else if (response.getStatus() >= 400) {
+            JOptionPane.showMessageDialog(null, response.getMessage(), "Error " + response.getStatus(), JOptionPane.WARNING_MESSAGE);
         } else {
-            this.flights.add(new Flight(id, plane, departure, scale, arrival, departureDate, hoursDurationsArrival, minutesDurationsArrival, hoursDurationsScale, minutesDurationsScale));
-        }
+            Plane plane = this.planes.stream().filter(p -> p.getId().equals(planeId)).findFirst().orElse(null);
+            Location departure = null, arrival = null, scale = null;
+            for (Location l : this.locations) {
+                if (l.getAirportId().equals(departureLocationId)) {
+                    departure = l;
+                }
+                if (l.getAirportId().equals(arrivalLocationId)) {
+                    arrival = l;
+                }
+                if (l.getAirportId().equals(scaleLocationId)) {
+                    scale = l;
+                }
+            }
 
-        this.flightToAdd.addItem(id);
+            LocalDateTime departureDate = LocalDateTime.of(Integer.parseInt(year), Integer.parseInt(month),
+                    Integer.parseInt(day), Integer.parseInt(hour), Integer.parseInt(minutes));
+
+            int hArrival = Integer.parseInt(hA);
+            int mArrival = Integer.parseInt(mA);
+            int hScale = Integer.parseInt(hS);
+            int mScale = Integer.parseInt(mS);
+
+            Flight flight;
+            if (scale == null) {
+                flight = new Flight(id, plane, departure, arrival, departureDate, hArrival, mArrival);
+            } else {
+                flight = new Flight(id, plane, departure, scale, arrival, departureDate, hArrival, mArrival, hScale, mScale);
+            }
+
+            this.flights.add(flight);
+            this.flightToAdd.addItem(id);
+
+            JOptionPane.showMessageDialog(null, response.getMessage(), "Response Message", JOptionPane.INFORMATION_MESSAGE);
+
+            flightID.setText("");
+            flightDepartureYear.setText("");
+            flightDepartureMonth.setSelectedIndex(0);
+            flightDepartureDay.setSelectedIndex(0);
+            flightDepartureHour.setSelectedIndex(0);
+            flightDepartureMinute.setSelectedIndex(0);
+            flightArrivalHour.setSelectedIndex(0);
+            flightArrivalMinute.setSelectedIndex(0);
+            flightScaleHour.setSelectedIndex(0);
+            flightScaleMinute.setSelectedIndex(0);
+            flightPlane.setSelectedIndex(0);
+            flightDepartureLocation.setSelectedIndex(0);
+            flightArrivalLocation.setSelectedIndex(0);
+            flightScaleLocation.setSelectedIndex(0);
+
+        }
     }//GEN-LAST:event_createFlightActionPerformed
 
     private void updateButtonActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_updateButtonActionPerformed
