@@ -4,7 +4,6 @@
  */
 package airport;
 
-import airport.controller.AirportController;
 import airport.controller.FlightController;
 import airport.controller.LocationController;
 import airport.controller.PassengerController;
@@ -33,14 +32,13 @@ public class AirportFrame extends javax.swing.JFrame {
     private ArrayList<Plane> planes;
     private ArrayList<Location> locations;
     private ArrayList<Flight> flights;
-    private AirportController airportController;
     private PassengerController passengerController;
     private PlaneController planeController;
     private LocationController locationController;
     private FlightController flightController;
 
     public AirportFrame() {
-        airportController = new AirportController();
+
         initComponents();
 
         planeController = new PlaneController();
@@ -1643,32 +1641,36 @@ public class AirportFrame extends javax.swing.JFrame {
     }//GEN-LAST:event_createFlightActionPerformed
 
     private void updateButtonActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_updateButtonActionPerformed
-        // TODO add your handling code here:
-        long id = Long.parseLong(updatedID.getText());
+        String id = updatedID.getText();
         String firstname = updatedFName.getText();
         String lastname = updatedLName.getText();
-        int year = Integer.parseInt(updatedYear.getText());
-        int month = Integer.parseInt(passengerMonth.getItemAt(updatedMonth.getSelectedIndex()));
-        int day = Integer.parseInt(passengerDay.getItemAt(updatedDay.getSelectedIndex()));
-        int phoneCode = Integer.parseInt(updatedCountryCode.getText());
-        long phone = Long.parseLong(updatedPhoneNumber.getText());
+        String year = updatedYear.getText();
+        String month = updatedMonth.getItemAt(updatedMonth.getSelectedIndex());
+        String day = updatedDay.getItemAt(updatedDay.getSelectedIndex());
+        String code = updatedCountryCode.getText();
+        String phone = updatedPhoneNumber.getText();
         String country = updatedCountry.getText();
 
-        LocalDate birthDate = LocalDate.of(year, month, day);
+        Response response = passengerController.updatePassenger(id, firstname, lastname, year, month, day, code, phone, country, this.passengers);
 
-        Passenger passenger = null;
-        for (Passenger p : this.passengers) {
-            if (p.getId() == id) {
-                passenger = p;
-            }
+        if (response.getStatus() >= 500) {
+            JOptionPane.showMessageDialog(null, response.getMessage(), "Error " + response.getStatus(), JOptionPane.ERROR_MESSAGE);
+        } else if (response.getStatus() >= 400) {
+            JOptionPane.showMessageDialog(null, response.getMessage(), "Warning " + response.getStatus(), JOptionPane.WARNING_MESSAGE);
+        } else {
+            JOptionPane.showMessageDialog(null, response.getMessage(), "Success", JOptionPane.INFORMATION_MESSAGE);
+
+            // Limpiar campos
+            updatedID.setText("");
+            updatedFName.setText("");
+            updatedLName.setText("");
+            updatedYear.setText("");
+            updatedCountryCode.setText("");
+            updatedPhoneNumber.setText("");
+            updatedCountry.setText("");
+            updatedMonth.setSelectedIndex(0);
+            updatedDay.setSelectedIndex(0);
         }
-
-        passenger.setFirstname(firstname);
-        passenger.setLastname(lastname);
-        passenger.setBirthDate(birthDate);
-        passenger.setCountryPhoneCode(phoneCode);
-        passenger.setPhone(phone);
-        passenger.setCountry(country);
     }//GEN-LAST:event_updateButtonActionPerformed
 
     private void addToFlightButtonActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_addToFlightButtonActionPerformed
@@ -1696,19 +1698,23 @@ public class AirportFrame extends javax.swing.JFrame {
     }//GEN-LAST:event_addToFlightButtonActionPerformed
 
     private void delayFlightActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_delayFlightActionPerformed
-        // TODO add your handling code here:
         String flightId = delayID.getItemAt(delayID.getSelectedIndex());
-        int hours = Integer.parseInt(delayHour.getItemAt(delayHour.getSelectedIndex()));
-        int minutes = Integer.parseInt(delayMinute.getItemAt(delayMinute.getSelectedIndex()));
+        String hours = delayHour.getItemAt(delayHour.getSelectedIndex());
+        String minutes = delayMinute.getItemAt(delayMinute.getSelectedIndex());
 
-        Flight flight = null;
-        for (Flight f : this.flights) {
-            if (flightId.equals(f.getId())) {
-                flight = f;
-            }
+        Response response = flightController.delayFlight(flightId, hours, minutes, this.flights);
+
+        if (response.getStatus() >= 500) {
+            JOptionPane.showMessageDialog(null, response.getMessage(), "Error " + response.getStatus(), JOptionPane.ERROR_MESSAGE);
+        } else if (response.getStatus() >= 400) {
+            JOptionPane.showMessageDialog(null, response.getMessage(), "Warning " + response.getStatus(), JOptionPane.WARNING_MESSAGE);
+        } else {
+            JOptionPane.showMessageDialog(null, response.getMessage(), "Success", JOptionPane.INFORMATION_MESSAGE);
+
+            delayHour.setSelectedIndex(0);
+            delayMinute.setSelectedIndex(0);
+            delayID.setSelectedIndex(0);
         }
-
-        flight.delay(hours, minutes);
     }//GEN-LAST:event_delayFlightActionPerformed
 
     private void refreshMyFlightsActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_refreshMyFlightsActionPerformed
@@ -1719,7 +1725,13 @@ public class AirportFrame extends javax.swing.JFrame {
         for (Passenger p : this.passengers) {
             if (p.getId() == passengerId) {
                 passenger = p;
+                break;
             }
+        }
+
+        if (passenger == null) {
+            JOptionPane.showMessageDialog(null, "Selected user not found.", "Error", JOptionPane.ERROR_MESSAGE);
+            return;
         }
 
         ArrayList<Flight> flights = passenger.getFlights();

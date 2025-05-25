@@ -112,4 +112,46 @@ public class FlightController {
         }
     }
 
+    public Response delayFlight(String flightId, String hours, String minutes, List<Flight> currentFlights) {
+        try {
+            int h, m;
+
+            // Validar campos vacíos
+            if (flightId.isEmpty() || hours.isEmpty() || minutes.isEmpty()) {
+                return new Response("All fields must be filled.", Status.BAD_REQUEST);
+            }
+
+            // Buscar vuelo por ID
+            Flight flight = null;
+            for (Flight f : currentFlights) {
+                if (f.getId().equals(flightId)) {
+                    flight = f;
+                    break;
+                }
+            }
+            if (flight == null) {
+                return new Response("Flight with ID " + flightId + " not found.", Status.NOT_FOUND);
+            }
+
+            // Validar horas y minutos
+            try {
+                h = Integer.parseInt(hours);
+                m = Integer.parseInt(minutes);
+            } catch (NumberFormatException e) {
+                return new Response("Delay time must be numeric.", Status.BAD_REQUEST);
+            }
+
+            if (h == 0 && m == 0) {
+                return new Response("Delay time must be greater than 00:00.", Status.BAD_REQUEST);
+            }
+
+            // Aplicar retraso
+            flight.delay(h, m);
+            return new Response("Flight delayed successfully.", Status.OK);
+
+        } catch (Exception e) {
+            return new Response("Internal error: " + e.getMessage(), Status.INTERNAL_SERVER_ERROR);
+        }
+    }
+
 }

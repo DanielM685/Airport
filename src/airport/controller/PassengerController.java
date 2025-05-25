@@ -145,4 +145,82 @@ public class PassengerController {
         }
     }
 
+    public Response updatePassenger(String id, String firstname, String lastname, String year, String month, String day,
+            String code, String phone, String country, List<Passenger> currentPassengers) {
+        try {
+            long idLong;
+            int phoneCode;
+            long phoneNumber;
+            LocalDate birthDate;
+
+            // Validar ID
+            try {
+                idLong = Long.parseLong(id);
+                if (idLong < 0 || String.valueOf(idLong).length() > 15) {
+                    return new Response("ID must be positive and at most 15 digits.", Status.BAD_REQUEST);
+                }
+            } catch (NumberFormatException e) {
+                return new Response("ID must be numeric.", Status.BAD_REQUEST);
+            }
+
+            // Validar campos vacíos
+            if (firstname.isEmpty() || lastname.isEmpty() || year.isEmpty() || month.isEmpty() || day.isEmpty()
+                    || code.isEmpty() || phone.isEmpty() || country.isEmpty()) {
+                return new Response("All fields must be filled.", Status.BAD_REQUEST);
+            }
+
+            // Validar fecha
+            try {
+                birthDate = LocalDate.of(Integer.parseInt(year), Integer.parseInt(month), Integer.parseInt(day));
+            } catch (Exception e) {
+                return new Response("Invalid birth date.", Status.BAD_REQUEST);
+            }
+
+            // Validar código país
+            try {
+                phoneCode = Integer.parseInt(code);
+                if (phoneCode < 0 || String.valueOf(phoneCode).length() > 3) {
+                    return new Response("Phone code must be 1–3 digits and positive.", Status.BAD_REQUEST);
+                }
+            } catch (NumberFormatException e) {
+                return new Response("Phone code must be numeric.", Status.BAD_REQUEST);
+            }
+
+            // Validar número
+            try {
+                phoneNumber = Long.parseLong(phone);
+                if (phoneNumber < 0 || String.valueOf(phoneNumber).length() > 11) {
+                    return new Response("Phone number must be at most 11 digits and positive.", Status.BAD_REQUEST);
+                }
+            } catch (NumberFormatException e) {
+                return new Response("Phone number must be numeric.", Status.BAD_REQUEST);
+            }
+
+            // Buscar pasajero
+            Passenger passenger = null;
+            for (Passenger p : currentPassengers) {
+                if (p.getId() == idLong) {
+                    passenger = p;
+                    break;
+                }
+            }
+            if (passenger == null) {
+                return new Response("Passenger with that ID does not exist.", Status.NOT_FOUND);
+            }
+
+            // Actualizar campos
+            passenger.setFirstname(firstname);
+            passenger.setLastname(lastname);
+            passenger.setBirthDate(birthDate);
+            passenger.setCountryPhoneCode(phoneCode);
+            passenger.setPhone(phoneNumber);
+            passenger.setCountry(country);
+
+            return new Response("Passenger updated successfully.", Status.OK);
+
+        } catch (Exception e) {
+            return new Response("Internal error: " + e.getMessage(), Status.INTERNAL_SERVER_ERROR);
+        }
+    }
+
 }
