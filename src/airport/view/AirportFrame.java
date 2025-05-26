@@ -9,13 +9,12 @@ import airport.controller.LocationController;
 import airport.controller.PassengerController;
 import airport.controller.PlaneController;
 import airport.controller.utils.Response;
-import com.formdev.flatlaf.FlatDarkLaf;
 import java.awt.Color;
 import java.time.LocalDate;
 import java.time.LocalDateTime;
 import java.util.ArrayList;
+import java.util.Comparator;
 import javax.swing.JOptionPane;
-import javax.swing.UIManager;
 import javax.swing.table.DefaultTableModel;
 
 /**
@@ -63,7 +62,7 @@ public class AirportFrame extends javax.swing.JFrame {
         this.blockPanels();
 
         loadUserSelect();
-        loadFlightToAdd();
+        loadFlightComboBoxes();
         loadLocationComboBoxes();
         loadFlightPlanes();
     }
@@ -74,9 +73,10 @@ public class AirportFrame extends javax.swing.JFrame {
         }
     }
 
-    private void loadFlightToAdd() {
+    private void loadFlightComboBoxes() {
         for (Flight f : this.flights) {
             flightToAdd.addItem(f.getId());
+            delayID.addItem(f.getId());
         }
     }
 
@@ -1515,7 +1515,8 @@ public class AirportFrame extends javax.swing.JFrame {
             Passenger passenger = new Passenger(idLong, firstname, lastname, birthDate, phoneCode, phoneNumber, country);
 
             this.passengers.add(passenger);
-            this.userSelect.addItem(String.valueOf(idLong));
+            this.passengers.sort(Comparator.comparingLong(Passenger::getId));
+            loadUserSelect();
 
             JOptionPane.showMessageDialog(null, response.getMessage(), "Response Message", JOptionPane.INFORMATION_MESSAGE);
 
@@ -1548,8 +1549,8 @@ public class AirportFrame extends javax.swing.JFrame {
             int maxCapacity = Integer.parseInt(capacity);
             Plane plane = new Plane(id, brand, model, maxCapacity, airline);
             this.planes.add(plane);
-
-            this.flightPlane.addItem(id);
+            this.planes.sort(Comparator.comparing(Plane::getId));
+            loadFlightPlanes();
 
             JOptionPane.showMessageDialog(null, response.getMessage(), "Response Message", JOptionPane.INFORMATION_MESSAGE);
 
@@ -1582,10 +1583,8 @@ public class AirportFrame extends javax.swing.JFrame {
             Location location = new Location(id, name, city, country, latitude, longitude);
 
             this.locations.add(location);
-
-            this.flightDepartureLocation.addItem(id);
-            this.flightArrivalLocation.addItem(id);
-            this.flightScaleLocation.addItem(id);
+            this.locations.sort(Comparator.comparing(Location::getAirportId));
+            loadLocationComboBoxes();
 
             JOptionPane.showMessageDialog(null, response.getMessage(), "Response Message", JOptionPane.INFORMATION_MESSAGE);
 
@@ -1655,7 +1654,8 @@ public class AirportFrame extends javax.swing.JFrame {
             }
 
             this.flights.add(flight);
-            this.flightToAdd.addItem(id);
+            this.flights.sort(Comparator.comparing(Flight::getDepartureDate));
+            loadFlightComboBoxes();
 
             JOptionPane.showMessageDialog(null, response.getMessage(), "Response Message", JOptionPane.INFORMATION_MESSAGE);
 
@@ -1711,7 +1711,10 @@ public class AirportFrame extends javax.swing.JFrame {
     }//GEN-LAST:event_updateButtonActionPerformed
 
     private void addToFlightButtonActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_addToFlightButtonActionPerformed
-        // TODO add your handling code here:
+        if (addToFlightID.getText().isEmpty()) {
+            JOptionPane.showMessageDialog(null, "User must be selected.", "Warning", JOptionPane.WARNING_MESSAGE);
+            return;
+        }
         long passengerId = Long.parseLong(addToFlightID.getText());
         String flightId = flightToAdd.getItemAt(flightToAdd.getSelectedIndex());
 
@@ -1755,8 +1758,14 @@ public class AirportFrame extends javax.swing.JFrame {
     }//GEN-LAST:event_delayFlightActionPerformed
 
     private void refreshMyFlightsActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_refreshMyFlightsActionPerformed
-        // TODO add your handling code here:
-        long passengerId = Long.parseLong(userSelect.getItemAt(userSelect.getSelectedIndex()));
+
+        String selected = userSelect.getItemAt(userSelect.getSelectedIndex());
+        if (selected.equals("Select User")) {
+            JOptionPane.showMessageDialog(null, "Please select a valid user from the Administration panel.", "Warning", JOptionPane.WARNING_MESSAGE);
+            return;
+        }
+
+        long passengerId = Long.parseLong(selected);
 
         Passenger passenger = null;
         for (Passenger p : this.passengers) {

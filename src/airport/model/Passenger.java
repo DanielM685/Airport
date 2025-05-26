@@ -7,14 +7,14 @@ package airport;
 import java.time.LocalDate;
 import java.time.Period;
 import java.util.ArrayList;
-import java.util.List;
+import java.util.Comparator;
 
 /**
  *
  * @author edangulo
  */
 public class Passenger {
-    
+
     private final long id;
     private String firstname;
     private String lastname;
@@ -38,7 +38,7 @@ public class Passenger {
     public void addFlight(Flight flight) {
         this.flights.add(flight);
     }
-    
+
     public long getId() {
         return id;
     }
@@ -68,7 +68,9 @@ public class Passenger {
     }
 
     public ArrayList<Flight> getFlights() {
-        return flights;
+        ArrayList<Flight> sorted = new ArrayList<>(this.flights);
+        sorted.sort(Comparator.comparing(Flight::getDepartureDate));
+        return sorted;
     }
 
     public void setFirstname(String firstname) {
@@ -94,19 +96,19 @@ public class Passenger {
     public void setCountry(String country) {
         this.country = country;
     }
-    
+
     public String getFullname() {
         return firstname + " " + lastname;
     }
-    
+
     public String generateFullPhone() {
         return "+" + countryPhoneCode + " " + phone;
     }
-    
+
     public int calculateAge() {
         return Period.between(birthDate, LocalDate.now()).getYears();
     }
-    
+
     public int getNumFlights() {
         return flights.size();
     }
@@ -114,6 +116,5 @@ public class Passenger {
     public void setFlights(ArrayList<Flight> flights) {
         this.flights = flights;
     }
-    
-    
+
 }

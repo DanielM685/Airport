@@ -12,6 +12,8 @@ import airport.controller.utils.Status;
 import airport.model.storage.FlightAdapter;
 import airport.model.storage.JsonRepository;
 import java.time.LocalDateTime;
+import java.util.ArrayList;
+import java.util.Comparator;
 import java.util.List;
 
 /**
@@ -27,7 +29,9 @@ public class FlightController {
     }
 
     public List<Flight> getAllFlights() {
-        return flightRepo.getAll();
+        List<Flight> sorted = new ArrayList<>(flightRepo.getAll());
+        sorted.sort(Comparator.comparing(Flight::getDepartureDate));
+        return sorted;
     }
 
     public Response createFlight(String id, String planeId, String departureId, String arrivalId, String scaleId,

@@ -9,6 +9,8 @@ import airport.controller.utils.Response;
 import airport.controller.utils.Status;
 import airport.model.storage.JsonRepository;
 import airport.model.storage.LocationAdapter;
+import java.util.ArrayList;
+import java.util.Comparator;
 import java.util.List;
 
 /**
@@ -24,7 +26,9 @@ public class LocationController {
     }
 
     public List<Location> getAllLocations() {
-        return locationRepo.getAll();
+        List<Location> sorted = new ArrayList<>(locationRepo.getAll());
+        sorted.sort(Comparator.comparing(Location::getAirportId));
+        return sorted;
     }
 
     public Response createLocation(String id, String name, String city, String country, String lat, String lon, List<Location> currentLocations) {

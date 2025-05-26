@@ -14,6 +14,8 @@ import airport.model.storage.FlightAdapter;
 import airport.model.storage.JsonRepository;
 import airport.model.storage.PassengerAdapter;
 import java.time.LocalDate;
+import java.util.ArrayList;
+import java.util.Comparator;
 import java.util.List;
 
 /**
@@ -31,7 +33,9 @@ public class PassengerController {
     }
 
     public List<Passenger> getAllPassengers() {
-        return passengerRepo.getAll();
+        List<Passenger> sorted = new ArrayList<>(passengerRepo.getAll());
+        sorted.sort(Comparator.comparingLong(Passenger::getId));
+        return sorted;
     }
 
     private int getAge(LocalDate birthDate) {
@@ -160,7 +164,7 @@ public class PassengerController {
                     return new Response("ID must be positive and at most 15 digits.", Status.BAD_REQUEST);
                 }
             } catch (NumberFormatException e) {
-                return new Response("ID must be numeric.", Status.BAD_REQUEST);
+                return new Response("User must be selected", Status.BAD_REQUEST);
             }
 
             // Validar campos vacíos

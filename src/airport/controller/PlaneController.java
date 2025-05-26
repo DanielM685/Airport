@@ -9,6 +9,8 @@ import airport.controller.utils.Response;
 import airport.controller.utils.Status;
 import airport.model.storage.JsonRepository;
 import airport.model.storage.PlaneAdapter;
+import java.util.ArrayList;
+import java.util.Comparator;
 import java.util.List;
 
 /**
@@ -24,7 +26,9 @@ public class PlaneController {
     }
 
     public List<Plane> getAllPlanes() {
-        return planeRepo.getAll();
+        List<Plane> sorted = new ArrayList<>(planeRepo.getAll());
+        sorted.sort(Comparator.comparing(Plane::getId));
+        return sorted;
     }
 
     public Response createPlane(String id, String brand, String model, String capacity, String airline, List<Plane> currentPlanes) {
