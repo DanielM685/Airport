@@ -149,7 +149,7 @@ public class FlightController {
                 return new Response("Delay time must be greater than 00:00.", Status.BAD_REQUEST);
             }
 
-            // Aplicar retraso
+            
             flight.delay(h, m);
             return new Response("Flight delayed successfully.", Status.OK);
 

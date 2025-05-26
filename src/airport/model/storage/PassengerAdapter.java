@@ -5,12 +5,9 @@
 package airport.model.storage;
 
 
-import airport.Flight;
+
 import airport.Passenger;
 import java.time.LocalDate;
-import java.util.ArrayList;
-import java.util.List;
-import org.json.JSONArray;
 import org.json.JSONObject;
 
 /**

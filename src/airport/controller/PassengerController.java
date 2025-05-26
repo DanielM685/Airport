@@ -74,7 +74,6 @@ public class PassengerController {
                 return new Response("Passenger is already registered to this flight", Status.BAD_REQUEST);
             }
 
-            // Establecer relación temporal
             passenger.addFlight(flight);
             flight.addPassenger(passenger);
 
@@ -141,7 +140,7 @@ public class PassengerController {
                 }
             }
 
-            // Aquí NO se añade el pasajero (eso lo hará el Frame si todo va bien)
+            
             return new Response("Passenger created successfully.", Status.CREATED);
 
         } catch (Exception e) {

@@ -5,11 +5,9 @@
 package airport.model.storage;
 
 import java.io.FileReader;
-import java.io.FileWriter;
 import java.io.IOException;
 import java.util.ArrayList;
 import java.util.List;
-import java.util.function.Predicate;
 import org.json.JSONArray;
 import org.json.JSONTokener;
 
@@ -35,11 +33,11 @@ public class JsonRepository<T> {
     }
 
     public List<T> getAll() {
-        return new ArrayList<>(items); // copia de seguridad
+        return new ArrayList<>(items);
     }
 
     public void add(T object) {
-        items.add(object); // solo memoria
+        items.add(object);
     }
 
     public void remove(T object) {
